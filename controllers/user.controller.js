@@ -116,7 +116,7 @@ export const loginUser = async(req, res) =>{
         const token = jwt.sign({_id: user._id}, process.env.login_sec,{expiresIn:"2d"})
 
         res.json({
-            message: "user login sucessfully",
+            message: ` Welcome ${user.username} `,
             user,
             token
         })
