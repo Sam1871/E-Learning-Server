@@ -1,7 +1,7 @@
 import { User } from "../modals/user.modal.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import sendmail from "../middleware/sendmail.js";
+import sendmail,{sendForgotMail}from "../middleware/sendmail.js";
 import CircularJSON from "circular-json"
 
 export const registration = async (req, res) => {
@@ -136,3 +136,76 @@ export const myProfile = async(req, res) =>{
    res.json({user})
 }
 
+export const forgotPassword = async(req, res) =>{
+    try {
+        const {email} = req.body;
+
+        const user = await User.findOne({email});
+
+        if(!user) return res.status(400).json({
+            message:"No User With this mail"
+        })
+
+        const token = jwt.sign({email}, process.env.Forgot_Secret)
+
+        const data = {email, token}
+
+        await sendForgotMail("E Learning", data)
+
+        user.resetPasswordExpire = Date.now() + 5 *60 *1000;
+
+        await user.save();
+
+        res.status(200).json({
+            message: "Password Reset Link is sent to your mail"
+        })
+    } catch (error) {
+        res.status(500).json({
+            message: error.message
+        }) 
+    }
+}
+
+export const resetPassword = async (req, res) => {
+    try {
+        // Verify token safely
+        let decodedata;
+        try {
+            decodedata = jwt.verify(req.query.token, process.env.Forgot_Secret);
+        } catch (err) {
+            return res.status(400).json({ message: "Invalid or expired token" });
+        }
+
+        // Find user by email from token
+        const user = await User.findOne({ email: decodedata.email });
+
+        if (!user) {
+            return res.status(400).json({
+                message: "No user with this email"
+            });
+        }
+
+        // Check if reset token is expired
+        if (!user.resetPasswordExpire || user.resetPasswordExpire < Date.now()) {
+            return res.status(400).json({ message: "Token expired" });
+        }
+
+        // Hash the new password
+        const hashedPassword = await bcrypt.hash(req.body.password, 10);
+
+        // Update user password and remove resetPasswordExpire
+        user.password = hashedPassword;
+        user.resetPasswordExpire = undefined;
+
+        await user.save();
+
+        res.json({
+            message: "Password reset successfully"
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            message: error.message
+        });
+    }
+};

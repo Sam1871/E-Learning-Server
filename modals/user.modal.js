@@ -23,7 +23,11 @@ const userSchema = new mongoose.Schema({
         
         type: mongoose.Schema.Types.ObjectId,
         ref: "Course"
-    }]
+    }],
+
+    resetPasswordExpire:{
+        type: Date,
+    },
 },
 {
     timestamps: true
