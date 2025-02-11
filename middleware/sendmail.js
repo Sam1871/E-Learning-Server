@@ -1,4 +1,7 @@
 import { createTransport } from "nodemailer";
+import dotenv from "dotenv"
+
+dotenv.config()
 
 const sendmail = async (email, subject, data) => {
     try {
@@ -82,7 +85,7 @@ const sendForgotMail = async(subject, data) =>{
             secure: true, // Use secure connections
             auth: {
                 user: process.env.Gmail,
-                pass: process.env.Password
+                pass: process.env.password
             }
         });
 
