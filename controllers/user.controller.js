@@ -1,8 +1,8 @@
 import { User } from "../modals/user.modal.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import sendmail,{sendForgotMail}from "../middleware/sendmail.js";
-import CircularJSON from "circular-json"
+import {sendmail,sendForgotMail} from "../middleware/sendmail.js";
+
 
 export const registration = async (req, res) => {
     try {
@@ -28,7 +28,7 @@ export const registration = async (req, res) => {
         };
 
         // Generate a random OTP
-        const Otp = Math.floor(Math.random() * 1000000);
+        const Otp = Math.floor(100000 + Math.random() * 900000);
         
         
 

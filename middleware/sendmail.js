@@ -8,7 +8,7 @@ const sendmail = async (email, subject, data) => {
             secure: true, // Use secure connections
             auth: {
                 user: process.env.Gmail,
-                pass: process.env.Password
+                pass: process.env.password
             }
         });
 
@@ -73,9 +73,8 @@ const sendmail = async (email, subject, data) => {
     }
 };
 
-export default sendmail;
 
-export const sendForgotMail = async(subject, data) =>{
+const sendForgotMail = async(subject, data) =>{
     try {
         const transport = createTransport({
             host: "smtp.gmail.com",
@@ -160,7 +159,8 @@ export const sendForgotMail = async(subject, data) =>{
 
 
     } catch (error) {
-        console.error(`Failed to send email to ${email}: ${error.message}`);
+        console.error(`Failed to send email to ${data.email}: ${error.message}`);
     }
 }
 
+export {sendmail, sendForgotMail};
